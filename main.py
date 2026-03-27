@@ -1,15 +1,13 @@
 """Programm for your own favorite movies and there ranking to update everytime.
 You can see overview as well
 """
-from datetime import datetime
 import random
 import statistics
 import movie_storage_sql
-import movie_storage_sql as storage
 import requests
 from requests.exceptions import ConnectionError
+from back_up.api_key import API_KEY
 
-API_KEY = "b7cbf531&"
 URL = f"http://www.omdbapi.com/?apikey={API_KEY}&"
 PARAMS = {
     "t": ""
