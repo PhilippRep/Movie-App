@@ -229,7 +229,7 @@ def generate_website():
                                 </div>
                                 <div>
                                     <ol class="movie-grid">"""
-    html_end = """"</ol>
+    html_end = """</ol>
                     </div>
                 </body>
             </html>"""
