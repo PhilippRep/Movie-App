@@ -85,7 +85,15 @@ body {
   margin-top: 4px;
 }
 
+/* Bewertung */
+.movie-rating {
+  font-size: 0.8em;
+  color: #a3c9b3;
+  margin-top: 4px;
+}
+
 /* Optional: kleine goldene Details */
+.movie-rating::after,
 .movie-title::after {
   content: "";
   display: block;
