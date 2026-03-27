@@ -7,6 +7,8 @@ from movie_storage import movie_storage_sql
 import requests
 from requests.exceptions import ConnectionError
 from back_up.api_key import API_KEY
+import json
+
 
 URL = f"http://www.omdbapi.com/?apikey={API_KEY}&"
 PARAMS = {
@@ -51,12 +53,12 @@ def list_movies():
     print()
 
 
-def add_movie():
+def add_movie(user):
     """opportunity to add a new movie with the own ranking"""
     while True:
         new_movie = input("Enter new movie name: ")
         if movie_storage_sql.movie_exist(new_movie):
-            print(f"{new_movie} already exists!")
+            print(f"{user}, {new_movie} already exists!")
             print()
             continue
         movie_name_length = len(new_movie)
@@ -64,7 +66,7 @@ def add_movie():
             print("Movie name is empty!\n")
             continue
         elif movie_name_length > 179: #longest movie name in history has 179 chars
-            print(f"{new_movie} is title is too long. Take a shorter one!\n")
+            print(f"{user}, {new_movie} is title is too long. Take a shorter one!\n")
             continue
         try:
             PARAMS['t'] = new_movie
@@ -75,34 +77,34 @@ def add_movie():
             year = int(movie_dict['Year'])
             poster = movie_dict['Poster']
             movie_storage_sql.add_movie(title, year, rating, poster)
-            print(f"Movie: {new_movie} succesfully added!")
+            print(f"{user}, Movie: {new_movie} succesfully added!")
             print()
             break
         except KeyError:
-            print(f"Movie {new_movie} doesn`t exist")
+            print(f"{user}, Movie {new_movie} doesn`t exist")
             print()
         except ValueError:
-            print("Sorry, your input is invalid! Try again!")
+            print(f"Sorry {user}, your input is invalid! Try again!")
             print()
         except ConnectionError:
-            print("No Connection to API!")
+            print(f"Sorry {user}, No Connection to API!")
             print()
 
 
-def delete_movie():
+def delete_movie(user):
     """opportunity do delete one movie"""
     to_delete = input("Enter movie name to delete: ")
     movie_storage_sql.delete_movie(to_delete)
-    print(f"Movie: {to_delete} successfully deleted!")
+    print(f"{user}, your Movie: {to_delete} is successfully deleted!")
     print()
 
 
-def update_movie():
+def update_movie(user):
     """opportunity to get a movie a new ranking"""
     while True:
         which_movie_to_update = input("Enter movie name: ")
         if not movie_storage_sql.movie_exist(which_movie_to_update):
-            print(f"Movie: {which_movie_to_update} doesn't exist!")
+            print(f"{user}, this Movie: {which_movie_to_update} doesn't exist!")
             print()
             continue
         try:
@@ -112,18 +114,18 @@ def update_movie():
                 print()
                 continue
             movie_storage_sql.update_movie(which_movie_to_update, which_new_rating)
-            print(f"{which_movie_to_update} successfully updated\n")
+            print(f"{user}, the {which_movie_to_update} is successfully updated\n")
             break
         except ValueError:
-            print("Sorry, your input is invalid! Try again!")
+            print(f"Sorry{user}, your input is invalid! Try again!")
         print()
 
 
-def stats():
+def stats(user):
     """shows some statistic overview of the movie list"""
     movies_list = movie_storage_sql.list_movies()
     if movie_storage_sql.is_movie_list_empty():
-        print("Sorry, i can´t show something, Your Movie List is empty!")
+        print(f"Sorry{user}, i can´t show something, Your Movie List is empty!")
         print()
         return
     length_of_movies = len(movies_list)
@@ -146,28 +148,28 @@ def stats():
     print()
 
 
-def random_movie():
+def random_movie(user):
     """shows a random movie from the movie list"""
     movies_list = movie_storage_sql.list_movies()
     print(movies_list)
     if movie_storage_sql.is_movie_list_empty():
-        print("Sorry, i can´t show something, Your Movie List is empty!")
+        print(f"Sorry{user}, i can´t show something, Your Movie List is empty!")
         print()
         return
     movie_title = random.choice(list(movies_list.keys()))
     movie_year = movies_list[movie_title]['year']
     movie_rating = movies_list[movie_title]['rating']
-    print(f"Your movie for tonight: {movie_title} ({movie_year}), its rated {movie_rating}")
+    print(f"{user}, Your movie for tonight is\n: {movie_title} ({movie_year}), its rated {movie_rating}")
     print()
 
 
-def search_movie():
+def search_movie(user):
     """you can type in a part of a name of a movie and it will search for"""
     movies_list = movie_storage_sql.list_movies()
     while True:
         which_movie = input("Enter part of movie name: ")
         if (len(which_movie)) < 1 or which_movie == " ":
-            print("Movie name is empty!\n")
+            print(f" {user}, Movie name is empty!\n")
             continue
         found = False
         for movie, infos in movies_list.items():
@@ -175,7 +177,7 @@ def search_movie():
                 print(f"{movie} ({infos[YEAR]}), {infos[RATING]}")
                 found = True
         if not found:
-            print(f"Movie with: {which_movie} doesn´t exist!")
+            print(f"{user}, Movie with: {which_movie} doesn´t exist!")
         print()
         break
 
@@ -212,20 +214,20 @@ def sort_movies_by_year():
         else:
             print("Please enter 'Y' or 'N'")
 
-def generate_website():
+def generate_website(user):
     """Takes the Movie Database, create for every movie a new
     list object, contains it with the html template
     and create the index.html file"""
     movies_dict = movie_storage_sql.list_movies()
-    html_template= """
+    html_template= f"""
                         <html>
                             <head>
-                                <title> My Movie App</title>
+                                <title> {user}'s Movie App</title>
                                 <link rel="stylesheet" href="style.css"/>
                             </head>
                             <body>
                                 <div class="list-movies-title">
-                                    <h1>My Movie App</h1>
+                                    <h1>{user}'s Movie App</h1>
                                 </div>
                                 <div>
                                     <ol class="movie-grid">"""
@@ -246,11 +248,45 @@ def generate_website():
     html_template += html_end
     with open("static/index.html", "w", encoding="utf-8") as f:
         f.write(html_template)
-    print("Website successfully created\n")
+    print(f"{user}, your Website is successfully created\n")
+
+def users():
+    """Get the date from a json file with all included users.
+    you can choose you as user or create a new one with an own database and website"""
+    with open("data/user.json", "r", encoding="utf-8") as f:
+        all_users = json.load(f)
+    full_users = list(all_users)
+    print("Select a User:")
+    for user in all_users:
+        print(f"{user['id']}. {user['name']}")
+    if all_users:
+        highest_id = max(user["id"] for user in all_users)
+    else:
+        highest_id = 0
+    print(f"{highest_id + 1}. Create new User")
+    print()
+    user_choice = int(input("Enter choice (Number): "))
+    if user_choice == highest_id + 1:
+        new_user = input("What is your name? ")
+        new_user_dict = {
+            "id": highest_id + 1,
+            "name": new_user
+        }
+        full_users.append(new_user_dict)
+        with open("data/user.json", "w", encoding="utf-8") as f:
+            json.dump(full_users, f, indent=4)
+        print(f"Welcome, {new_user}\n")
+        return new_user
+    for user in all_users:
+        if user_choice == user['id']:
+            print(f"Welcome back, {user['name']}\n")
+            return user['name']
 
 def main():
     """Dictionary to store the movies and the rating"""
     print("********** My Movies Database **********\n ")
+    user = users()
+    movie_storage_sql.init_db(user)
     while True:
         menu_movies()
         choice = input("Enter choice (0-10): ")
@@ -261,23 +297,23 @@ def main():
         if choice == "1":
             list_movies()
         elif choice == "2":
-            add_movie()
+            add_movie(user)
         elif choice == "3":
-            delete_movie()
+            delete_movie(user)
         elif choice == "4":
-            update_movie()
+            update_movie(users)
         elif choice == "5":
-            stats()
+            stats(user)
         elif choice == "6":
-            random_movie()
+            random_movie(user)
         elif choice == "7":
-            search_movie()
+            search_movie(user)
         elif choice == "8":
             sort_movies_by_rating()
         elif choice == "9":
             sort_movies_by_year()
         elif choice == "10":
-            generate_website()
+            generate_website(user)
         user_need_to_enter = input("Press enter to continue\n ")
         if user_need_to_enter == " ":
             continue

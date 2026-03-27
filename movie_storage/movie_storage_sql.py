@@ -1,25 +1,24 @@
 from sqlalchemy import create_engine, text
 
+engine = None
 
-# Define the database URL
-DB_URL = "sqlite:///data/movies.db"
-
-# Create the engine
-engine = create_engine(DB_URL, echo=True, connect_args={"timeout": 10})
-
+def init_db(username):
+    global engine
+    DB_URL = f"sqlite:///data/{username}_movies.db"
+    engine = create_engine(DB_URL, echo=True, connect_args={"timeout": 10})
 # Create the movies table if it does not exist
-with engine.connect() as connection:
-    connection.execute(text("""
-        CREATE TABLE IF NOT EXISTS movies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT UNIQUE NOT NULL,
-            year INTEGER NOT NULL,
-            rating REAL NOT NULL,
-            poster TEXT NOT NULL
-        )
-    """))
+    with engine.connect() as connection:
+        connection.execute(text("""
+            CREATE TABLE IF NOT EXISTS movies (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT UNIQUE NOT NULL,
+                year INTEGER NOT NULL,
+                rating REAL NOT NULL,
+                poster TEXT NOT NULL
+            )
+        """))
 
-    connection.commit()
+        connection.commit()
 
 
 TITLE = "Title"
