@@ -3,7 +3,7 @@ You can see overview as well
 """
 import random
 import statistics
-import movie_storage_sql
+from movie_storage import movie_storage_sql
 import requests
 from requests.exceptions import ConnectionError
 from back_up.api_key import API_KEY
@@ -111,7 +111,7 @@ def update_movie():
                 print(f"Rating: {which_new_rating} is invalid")
                 print()
                 continue
-            movie_storage_sql.update_movie(which_movie_to_update,which_new_rating)
+            movie_storage_sql.update_movie(which_movie_to_update, which_new_rating)
             print(f"{which_movie_to_update} successfully updated\n")
             break
         except ValueError:
