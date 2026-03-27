@@ -215,19 +215,22 @@ def sort_movies_by_year():
             print("Please enter 'Y' or 'N'")
 
 def generate_website():
+    """Takes the Movie Database, create for every movie a new
+    list object, contains it with the html template
+    and create the index.html file"""
     movies_dict = movie_storage_sql.list_movies()
-    html_template = """
-                    <html>
-                        <head>
-                            <title>My Movie App</title>
-                            <link rel="stylesheet" href="style.css"/>
-                        </head>
-                        <body>
-                            <div class="list-movies-title">
-                                <h1>My Movie App</h1>
-                            </div>
-                            <div>
-                                <ol class="movie-grid">"""
+    html_template= """
+                        <html>
+                            <head>
+                                <title> My Movie App</title>
+                                <link rel="stylesheet" href="style.css"/>
+                            </head>
+                            <body>
+                                <div class="list-movies-title">
+                                    <h1>My Movie App</h1>
+                                </div>
+                                <div>
+                                    <ol class="movie-grid">"""
     html_end = """"</ol>
                     </div>
                 </body>
@@ -235,7 +238,7 @@ def generate_website():
     for movie_title, details in movies_dict.items():
         html_movie = f"""<li>
                             <div class="movie">
-                                <img class="movie-poster" src="{details['poster']}">
+                                <img class="movie-poster" src={details['poster']}>
                                 <div class="movie-title">{movie_title}</div>
                                 <div class="movie-year">{details['year']}</div>
                             </div>
@@ -251,7 +254,7 @@ def main():
     print("********** My Movies Database **********\n ")
     while True:
         menu_movies()
-        choice = input("Enter choice (0-9): ")
+        choice = input("Enter choice (0-10): ")
         print()
         if choice == "0":
             exit_programm()
