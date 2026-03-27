@@ -1,0 +1,97 @@
+body {
+  background: linear-gradient(135deg, #0b1f14, #0f2e1f);
+  color: #e6f2ea;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  margin: 0;
+}
+
+/* Header */
+.list-movies-title {
+  padding: 20px 0;
+  background: linear-gradient(90deg, #1b3a2b, #0f2e1f);
+  color: #d4f5e3;
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #c9a227; /* goldene Linie */
+}
+
+/* Grid */
+.movie-grid {
+  list-style: none;
+  padding: 20px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Card */
+.movie-grid li {
+  background: #14281d;
+  border-radius: 12px;
+  padding: 15px;
+  width: 160px;
+  text-align: center;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid #1f4d36;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border 0.25s ease;
+}
+
+/* Hover */
+.movie-grid li:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
+  border: 1px solid #c9a227; /* gold beim Hover */
+}
+
+/* Movie Container */
+.movie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Poster */
+.movie-poster {
+  width: 128px;
+  height: 193px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid #1f4d36;
+  transition: transform 0.3s ease, border 0.3s ease;
+}
+
+/* Poster Hover */
+.movie-grid li:hover .movie-poster {
+  transform: scale(1.05);
+  border: 2px solid #c9a227;
+}
+
+/* Titel */
+.movie-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin-top: 8px;
+  color: #e6f2ea;
+}
+
+/* Jahr */
+.movie-year {
+  font-size: 0.8em;
+  color: #a3c9b3;
+  margin-top: 4px;
+}
+
+/* Optional: kleine goldene Details */
+.movie-title::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: #c9a227;
+  margin: 8px auto 0 auto;
+  border-radius: 2px;
+}
