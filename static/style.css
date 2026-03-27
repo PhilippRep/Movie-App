@@ -103,3 +103,13 @@ body {
   margin: 8px auto 0 auto;
   border-radius: 2px;
 }
+.movie-button {
+    text-decoration: none;
+    color: inherit;
+    display: inline-block;
+}
+
+.movie-button:hover {
+    transform: scale(1.05);
+    transition: 0.2s;
+}

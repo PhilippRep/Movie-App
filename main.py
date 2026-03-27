@@ -76,7 +76,8 @@ def add_movie(user):
             rating = float(movie_dict['imdbRating'])
             year = int(movie_dict['Year'])
             poster = movie_dict['Poster']
-            movie_storage_sql.add_movie(title, year, rating, poster)
+            imdb_id = movie_dict['imdbID']
+            movie_storage_sql.add_movie(title, year, rating, poster, imdb_id)
             print(f"{user}, Movie: {new_movie} succesfully added!")
             print()
             break
@@ -238,7 +239,8 @@ def generate_website(user):
     for movie_title, details in movies_dict.items():
         html_movie = f"""<li>
                             <div class="movie">
-                                <img class="movie-poster" src={details['poster']}>
+                                <a href="https://www.imdb.com/de/title/{details['imdbID']}" target="_blank" class="movie-button">
+                                    <img class="movie-poster" src={details['poster']}></a>
                                 <div class="movie-title">{movie_title}</div>
                                 <div class="movie-year">{details['year']}</div>
                                 <div class="movie-rating">{details['rating']}</div>
@@ -301,7 +303,7 @@ def main():
         elif choice == "3":
             delete_movie(user)
         elif choice == "4":
-            update_movie(users)
+            update_movie(user)
         elif choice == "5":
             stats(user)
         elif choice == "6":

@@ -4,9 +4,10 @@ engine = None
 
 def init_db(username):
     global engine
+
     DB_URL = f"sqlite:///data/{username}_movies.db"
     engine = create_engine(DB_URL, echo=True, connect_args={"timeout": 10})
-# Create the movies table if it does not exist
+
     with engine.connect() as connection:
         connection.execute(text("""
             CREATE TABLE IF NOT EXISTS movies (
@@ -18,6 +19,14 @@ def init_db(username):
             )
         """))
 
+        result = connection.execute(text("PRAGMA table_info(movies)"))
+        columns = [row[1] for row in result]
+
+        if "imdbID" not in columns:
+            connection.execute(text("""
+                ALTER TABLE movies ADD COLUMN imdbID TEXT
+            """))
+
         connection.commit()
 
 
@@ -28,18 +37,18 @@ RATING = "Rating"
 def list_movies():
     """Retrieve all movies from the database."""
     with engine.connect() as connection:
-        result = connection.execute(text("SELECT title, year, rating, poster FROM movies"))
+        result = connection.execute(text("SELECT title, year, rating, poster, imdbID FROM movies"))
         movies = result.fetchall()
 
-    return {row[0]: {"year": row[1], "rating": row[2], "poster": row[3]} for row in movies}
+    return {row[0]: {"year": row[1], "rating": row[2], "poster": row[3], "imdbID": row[4]} for row in movies}
 
 
-def add_movie(title, year, rating, poster):
+def add_movie(title, year, rating, poster, imdb_id):
     """Add a new movie to the database."""
     with engine.begin() as connection:
         try:
-            connection.execute(text("INSERT INTO movies (title, year, rating, poster) VALUES (:title, :year, :rating, :poster)"),
-                               {"title": title, "year": year, "rating": rating, "poster": poster})
+            connection.execute(text("INSERT INTO movies (title, year, rating, poster, imdbID) VALUES (:title, :year, :rating, :poster, :imdbID)"),
+                               {"title": title, "year": year, "rating": rating, "poster": poster, "imdbID": imdb_id})
         except KeyError as e:
             print(f"Movie {title} doesn't exist")
         except Exception as e:
