@@ -1,15 +1,18 @@
 """Programm for your own favorite movies and there ranking to update everytime.
 You can see overview as well
 """
+import os
 import random
 import statistics
 from movie_storage import movie_storage_sql
 import requests
 from requests.exceptions import ConnectionError
-from back_up.api_key import API_KEY
 import json
+from dotenv import load_dotenv
 
 
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
 URL = f"http://www.omdbapi.com/?apikey={API_KEY}&"
 PARAMS = {
     "t": ""
@@ -71,12 +74,28 @@ def add_movie(user):
         try:
             PARAMS['t'] = new_movie
             response = requests.get(URL, params=PARAMS)
+            if response.status_code != 200:
+                print("API request failed")
+                continue
             movie_dict = response.json()
-            title = movie_dict['Title']
-            rating = float(movie_dict['imdbRating'])
-            year = int(movie_dict['Year'])
-            poster = movie_dict['Poster']
-            imdb_id = movie_dict['imdbID']
+            if movie_dict.get("Response") == "False":
+                print(f"{user}, Movie {new_movie} does not exist.")
+                continue
+            title = movie_dict.get('Title')
+            rating = movie_dict.get('imdbRating')
+            if rating == "N/A":
+                rating = None
+            else:
+                rating = float(rating)
+            year = movie_dict.get('Year')
+            if year and year.isdigit():
+                year = int(year)
+            else:
+                year = int(year.split("–")[0])
+            poster = movie_dict.get('Poster')
+            if not poster or poster == "N/A":
+                poster = None
+            imdb_id = movie_dict.get('imdbID')
             movie_storage_sql.add_movie(title, year, rating, poster, imdb_id)
             print(f"{user}, Movie: {new_movie} succesfully added!")
             print()
@@ -95,9 +114,11 @@ def add_movie(user):
 def delete_movie(user):
     """opportunity do delete one movie"""
     to_delete = input("Enter movie name to delete: ")
-    movie_storage_sql.delete_movie(to_delete)
-    print(f"{user}, your Movie: {to_delete} is successfully deleted!")
-    print()
+    deleted_count = movie_storage_sql.delete_movie(to_delete)
+    if deleted_count == 0:
+        return "Movie not found"
+    else:
+        return print(f"{user}, your Movie: {to_delete} is successfully deleted!\n")
 
 
 def update_movie(user):
@@ -267,7 +288,11 @@ def users():
         highest_id = 0
     print(f"{highest_id + 1}. Create new User")
     print()
-    user_choice = int(input("Enter choice (Number): "))
+    try:
+        user_choice = int(input("Enter choice (Number): "))
+    except ValueError:
+        print("Invalid input. Please enter a number")
+        return
     if user_choice == highest_id + 1:
         new_user = input("What is your name? ")
         new_user_dict = {

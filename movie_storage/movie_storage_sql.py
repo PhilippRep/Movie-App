@@ -15,7 +15,7 @@ def init_db(username):
                 title TEXT UNIQUE NOT NULL,
                 year INTEGER NOT NULL,
                 rating REAL NOT NULL,
-                poster TEXT NOT NULL
+                poster TEXT TEXT DEFAULT NULL
             )
         """))
 
@@ -57,8 +57,9 @@ def add_movie(title, year, rating, poster, imdb_id):
 def delete_movie(title):
     """Delete a movie from the database."""
     with engine.begin() as connection:
-        connection.execute(text("DELETE FROM movies WHERE title= :title"),
+        result = connection.execute(text("DELETE FROM movies WHERE title= :title"),
                            {"title": title})
+        return result.rowcount
 
 def update_movie(title, rating):
     """Update a movie's rating in the database."""
